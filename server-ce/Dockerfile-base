@@ -79,6 +79,24 @@ RUN mkdir /install-tl-unx \
 &&  tlmgr path add \
 &&  rm -rf /install-tl-unx
 
+# -------------------- [开始] 添加自定义内容 --------------------
+
+# 1. 复制自定义字体
+COPY server-ce/fonts/ /usr/local/share/fonts/
+
+# 2. 安装额外依赖, 开启 shell-escape, 并更新字体缓存
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        inkscape \
+        python3-pygments \
+        ttf-mscorefonts-installer \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* \
+    && TEXLIVE_YEAR=$(basename $(find /usr/local/texlive -maxdepth 1 -type d -name "20*")) \
+    && echo "shell_escape = t" >> /usr/local/texlive/${TEXLIVE_YEAR}/texmf.cnf \
+    && fc-cache -fv
+
+# -------------------- [结束] 添加自定义内容 --------------------
+
 
 # Set up overleaf user and home directory
 # -----------------------------------------
